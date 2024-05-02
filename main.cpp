@@ -8,10 +8,6 @@
 // g++ main.cpp -lopenblas -llapack && ./a.out
 
 extern "C" { // Multiply matrixes
-    extern int dnrm2_(unsigned int*, double *, unsigned int *);
-}
-
-extern "C" { // Multiply matrixes
     extern int dgemm_(char *, char *, unsigned int *, unsigned int *, unsigned int *, double *, 
                     double *, unsigned int *, double *, unsigned int *, double *, double *, unsigned int *);
 }
@@ -127,10 +123,8 @@ HOW FUNCTION WORKS:
     
     dorgqr_(&n, &s, &s, q, &n, tau, work, &lwork, &info); // compute Q for P = QR
 
-    //std::cout << "\n=========== R in P = QR ===========\n"; print_matrix(r, s, s);
     int * jpvt = new int[s];
     dgeqp3_(&s, &s, r, &s, jpvt, tau, work, &lwork, &info); // pivoting QR for R
-    //std::cout << "\n=========== pivoting for R ===========\n"; print_matrix(r, s, s);
 
     unsigned int cur_rank = s;
     for(int i = 0 ; i < s; ++i) {
@@ -144,8 +138,6 @@ HOW FUNCTION WORKS:
     }
 
     dorgqr_(&s, &s, &s, r, &s, tau, work, &lwork, &info); // compute Q in R = QR
-    //std::cout << "\n=========== Q in pivoting for R ===========\n"; print_matrix(r, s, s);
-
 
     char trans = 'N'; double alph = 1.0; double bet = 0.0;
     dgemm_(&trans, &trans, &n, &cur_rank, &s, &alph, q, &n, r, &s, &bet, p, &n);
@@ -290,7 +282,6 @@ int main() {
 
 
     for(int i = 0 ; i < s; ++i) {
-        ipiv[i] = i + 1;
         swaps[i] = i;
     }
     
@@ -303,7 +294,6 @@ int main() {
     auto start_time = std::chrono::steady_clock::now();
     unsigned int max_iterations = n;
     for(unsigned int i = 0; i < max_iterations; ++i) {
-        //start_cycle:
         unsigned int max_s_rank = max(cur_s, cur_rank);
         //std::cout << "========================= i = " << i << " ========================\n";
 
